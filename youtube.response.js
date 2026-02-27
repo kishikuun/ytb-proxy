@@ -1387,13 +1387,51 @@
   };
 
   var w = v.getInstance("YouTube");
+  let globalAdCache = null;
   var G = class {
       name; needProcess; needSave; message; version = "1.0"; whiteNo = []; blackNo = []; whiteEml = []; blackEml = ["inline_injection_entrypoint_layout.eml"]; msgType; argument;
       constructor(e, t) {
           this.name = t, this.msgType = e, this.argument = this.decodeArgument(), w.isDebug = Boolean(this.argument.debug), w.debug(this.name);
-          let n = w.getJSON("YouTubeAdvertiseInfo");
+          
+          if (!globalAdCache) {
+              globalAdCache = w.getJSON("YouTubeAdvertiseInfo") || {};
+          }
+          let n = globalAdCache;
+          
           w.debug(`currentVersion:  ${this.version}`), w.debug(`storedVersion:  ${n.version}`), n?.version === this.version && Object.assign(this, n)
       }
+      decodeArgument() { return w.decodeParams({ lyricLang: "off", captionLang: "off", blockUpload: !0, blockImmersive: !0, blockShorts: !1, debug: !1 }) }
+      fromBinary(e) { return e instanceof Uint8Array ? (this.message = this.msgType.fromBinary(e), w.debug(`bodyBytesSize: ${Math.floor(e.length/1024)} kb`), this) : (w.log("YouTube can not get binaryBody"), w.exit(), this) }
+      toBinary() { return this.msgType.toBinary(this.message) }
+      save() {
+          if (this.needSave) {
+              w.debug("Update Config");
+              let e = { version: this.version, whiteNo: this.whiteNo, blackNo: this.blackNo, whiteEml: this.whiteEml, blackEml: this.blackEml };
+              w.debug(e);
+              
+              globalAdCache = e; 
+              w.setJSON(e, "YouTubeAdvertiseInfo")
+          }
+      }
+      done() {
+          if (this.save(), this.needProcess) {
+              w.timeStart("toBinary");
+              let e = this.toBinary();
+              w.timeEnd("toBinary"), w.debug(`modifiedBodySize: ${Math.floor(e.length/1024)} kb`), w.done({ bodyBytes: e })
+          } else w.debug("use $.exit()"), w.exit()
+      }
+      iterate(e = {}, t, n) {
+          let i = typeof e == "object" ? [e] : [];
+          for (; i.length;) {
+              let r = i.pop(), c = Object.keys(r);
+              for (let a of c) {
+                  if (a === t && n(r)) return;
+                  typeof r[a] == "object" && i.push(r[a])
+              }
+          }
+      }
+  };
+  
       decodeArgument() { return w.decodeParams({ lyricLang: "off", captionLang: "off", blockUpload: !0, blockImmersive: !0, blockShorts: !1, debug: !1 }) }
       fromBinary(e) { return e instanceof Uint8Array ? (this.message = this.msgType.fromBinary(e), w.debug(`bodyBytesSize: ${Math.floor(e.length/1024)} kb`), this) : (w.log("YouTube can not get binaryBody"), w.exit(), this) }
       toBinary() { return this.msgType.toBinary(this.message) }
