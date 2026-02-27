@@ -1,11 +1,11 @@
-#!name = YouTube AdBlock & Premium PiP
+#!name = YouTube AdBlock
 #!author = kishikuun
 
 [Rule]
 AND,((DOMAIN-SUFFIX,googlevideo.com), (PROTOCOL,UDP)),REJECT
 AND,((DOMAIN,youtubei.googleapis.com), (PROTOCOL,UDP)),REJECT
 
-https://ahrefs.com/writing-tools/paragraph-rewriter
+https://www.merriam-webster.com/dictionary/rewrite
 ^https?:\/\/[\w-]+\.googlevideo\.com\/(?!(dclk_video_ads|videoplayback\?)).+&oad _ reject-200
 ^https?:\/\/(www|s)\.youtube\.com\/api\/stats\/ads _ reject-200
 ^https?:\/\/(www|s)\.youtube\.com\/(pagead|ptracking) _ reject-200
